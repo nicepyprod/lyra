@@ -61,7 +61,7 @@ def parse_args():
     parser.add_argument(
         "--per_device_train_batch_size",
         type=int,
-        default=4,
+        default=2,  # lowered from 4 to avoid OOM on my 8GB GPU
         help="Batch size per GPU/CPU for training.",
     )
     parser.add_argument(
@@ -117,51 +117,3 @@ def parse_args():
 
     args = parser.parse_args()
     return args
-
-
-def setup_logging(accelerator):
-    """Configure logging for the training run."""
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        level=logging.INFO,
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
-    if accelerator.is_local_main_process:
-        logger.info("Logging initialized for main process.")
-
-
-def main():
-    """Main entry point for the training script."""
-    args = parse_args()
-
-    # Initialize accelerator
-    project_config = ProjectConfiguration(
-        project_dir=args.output_dir,
-        logging_dir=os.path.join(args.output_dir, "logs"),
-    )
-    accelerator = Accelerator(
-        gradient_accumulation_steps=1,
-        log_with="tensorboard",
-        project_config=project_config,
-    )
-
-    setup_logging(accelerator)
-
-    # Set seed for reproducibility
-    if args.seed is not None:
-        set_seed(args.seed)
-
-    # Create output directory
-    if accelerator.is_main_process:
-        os.makedirs(args.output_dir, exist_ok=True)
-
-    accelerator.wait_for_everyone()
-
-    logger.info(f"Training configuration: {args}")
-    logger.info(f"Accelerator state: {accelerator.state}")
-    logger.info("Training script initialized. Implement model and data loading here.")
-
-
-if __name__ == "__main__":
-    main()
