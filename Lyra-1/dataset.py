@@ -54,6 +54,7 @@ class AudioTextDataset(Dataset):
     def _load_manifest(self, manifest_path: str) -> List[Dict[str, Any]]:
         """Load and filter samples from a JSON lines manifest."""
         samples = []
+        skipped = 0
         with open(manifest_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
@@ -63,8 +64,11 @@ class AudioTextDataset(Dataset):
                 # Filter by duration if provided
                 duration = entry.get("duration", None)
                 if duration is not None and duration > self.max_audio_length:
+                    skipped += 1
                     continue
                 samples.append(entry)
+        if skipped > 0:
+            print(f"[AudioTextDataset] Skipped {skipped} samples exceeding max_audio_length={self.max_audio_length}s")
         return samples
 
     def _load_audio(self, audio_path: str) -> torch.Tensor:
@@ -80,4 +84,6 @@ class AudioTextDataset(Dataset):
 
         # Resample if necessary
         if orig_sr != self.sample_rate:
-            resampler = torchaudio.transforms.R
+            waveform = torchaudio.functional.resample(waveform, orig_freq=orig_sr, new_freq=self.sample_rate)
+
+        return waveform
