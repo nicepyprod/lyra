@@ -51,6 +51,10 @@ click>=8.1.0
 rich>=13.0.0
 python-dotenv>=1.0.0
 
+# Jupyter / notebook support (useful for local experimentation)
+jupyterlab>=4.0.0
+ipywidgets>=8.0.0
+
 # Optional: Flash Attention for faster training
 # flash-attn>=2.3.0  # Requires CUDA, install separately if needed
 
