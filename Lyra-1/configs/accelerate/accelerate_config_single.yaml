@@ -7,7 +7,8 @@ downcast_bf16: 'no'
 gpu_ids: '0'
 machine_rank: 0
 main_training_function: main
-mixed_precision: 'fp16'
+# Using bf16 instead of fp16 - RTX 3090 supports bf16 and it's more stable for training
+mixed_precision: 'bf16'
 num_machines: 1
 num_processes: 1
 rdzv_backend: static
