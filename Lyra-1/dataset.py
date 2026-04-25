@@ -27,7 +27,7 @@ class AudioTextDataset(Dataset):
         manifest_path: str,
         tokenizer,
         feature_extractor,
-        max_audio_length: float = 30.0,
+        max_audio_length: float = 20.0,  # reduced from 30.0 - my data is mostly <20s and this saves memory
         max_text_length: int = 512,
         sample_rate: int = 16000,
         data_root: Optional[str] = None,
@@ -80,71 +80,4 @@ class AudioTextDataset(Dataset):
 
         # Resample if necessary
         if orig_sr != self.sample_rate:
-            resampler = torchaudio.transforms.Resample(
-                orig_freq=orig_sr, new_freq=self.sample_rate
-            )
-            waveform = resampler(waveform)
-
-        # Truncate to max length
-        max_samples = int(self.max_audio_length * self.sample_rate)
-        waveform = waveform[:, :max_samples]
-
-        return waveform.squeeze(0)  # (T,)
-
-    def __len__(self) -> int:
-        return len(self.samples)
-
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        sample = self.samples[idx]
-        audio_path = sample["audio_path"]
-        text = sample["text"]
-
-        waveform = self._load_audio(audio_path)
-
-        # Extract audio features
-        audio_inputs = self.feature_extractor(
-            waveform.numpy(),
-            sampling_rate=self.sample_rate,
-            return_tensors="pt",
-        )
-
-        # Tokenize text
-        text_inputs = self.tokenizer(
-            text,
-            max_length=self.max_text_length,
-            truncation=True,
-            return_tensors="pt",
-        )
-
-        return {
-            "input_features": audio_inputs.input_features.squeeze(0),
-            "input_ids": text_inputs.input_ids.squeeze(0),
-            "attention_mask": text_inputs.attention_mask.squeeze(0),
-        }
-
-
-def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
-    """Collate a list of dataset samples into a padded batch.
-
-    Args:
-        batch: List of dicts from AudioTextDataset.__getitem__.
-
-    Returns:
-        Dict of padded tensors ready for model input.
-    """
-    input_features = torch.stack([item["input_features"] for item in batch])
-
-    max_text_len = max(item["input_ids"].shape[0] for item in batch)
-    input_ids = torch.zeros(len(batch), max_text_len, dtype=torch.long)
-    attention_mask = torch.zeros(len(batch), max_text_len, dtype=torch.long)
-
-    for i, item in enumerate(batch):
-        seq_len = item["input_ids"].shape[0]
-        input_ids[i, :seq_len] = item["input_ids"]
-        attention_mask[i, :seq_len] = item["attention_mask"]
-
-    return {
-        "input_features": input_features,
-        "input_ids": input_ids,
-        "attention_mask": attention_mask,
-    }
+            resampler = torchaudio.transforms.R
