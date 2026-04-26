@@ -67,7 +67,7 @@ def parse_args():
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=1e-4,
+        default=5e-5,  # lowered from 1e-4; felt too aggressive for fine-tuning
         help="Initial learning rate (after warmup).",
     )
     parser.add_argument(
@@ -93,7 +93,7 @@ def parse_args():
     parser.add_argument(
         "--logging_steps",
         type=int,
-        default=50,
+        default=25,  # more frequent logging to keep a closer eye on loss curves
         help="Log training metrics every N steps.",
     )
     parser.add_argument(
@@ -113,7 +113,3 @@ def parse_args():
         type=str,
         default=None,
         help="Path to checkpoint to resume training from.",
-    )
-
-    args = parser.parse_args()
-    return args
