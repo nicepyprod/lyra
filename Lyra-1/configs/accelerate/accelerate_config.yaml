@@ -16,3 +16,5 @@ tpu_env: []
 tpu_use_cluster: false
 tpu_use_sudo: false
 use_cpu: false
+# Enable gradient accumulation sync to avoid stale gradients across processes
+sync_gradients_at_end: true
