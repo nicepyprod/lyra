@@ -22,6 +22,8 @@ All submissions, including submissions by project members, require review. We us
   Signed-off-by: Your Name <your@email.com>
   ```
 
+  > **Personal note:** If you use VS Code, the [Git Lens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens) extension can help manage sign-offs. Alternatively, you can set up a Git alias like `git config --global alias.cs 'commit -s'` to make signing off more convenient.
+
 * Full text of the DCO:
 
   ```
